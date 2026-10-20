@@ -1,0 +1,23 @@
+appId: com.aivideoconverter.app
+productName: 视频格式转换器
+directories:
+  output: dist
+  buildResources: build
+files:
+  - "out/**/*"
+extraResources:
+  - from: resources/ffmpeg
+    to: ffmpeg
+asar: true
+win:
+  target:
+    - target: nsis
+    - target: zip
+  icon: build/icon.ico
+  artifactName: "${productName}-${version}-${arch}.${ext}"
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 视频格式转换器

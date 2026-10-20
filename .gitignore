@@ -1,0 +1,11 @@
+node_modules/
+out/
+dist/
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.local
+
+# TS 增量编译缓存
+*.tsbuildinfo
