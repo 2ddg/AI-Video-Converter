@@ -147,7 +147,7 @@ function clearFrame(): void {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -155,6 +155,7 @@ function clearFrame(): void {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -165,6 +166,9 @@ function clearFrame(): void {
   font-size: 11px;
   color: var(--text-3);
   letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .v {
   font-size: 13px;

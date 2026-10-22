@@ -37,6 +37,7 @@ export const useTaskStore = defineStore('tasks', () => {
       // 未知任务（可能刚入队历史未同步）：忽略
       return
     }
+    if (t.status === 'queued') t.status = 'converting'
     t.percent = p.percent
     t.speed = p.speed
     t.etaSec = p.etaSec

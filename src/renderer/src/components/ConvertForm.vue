@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useVideoStore } from '../stores/video'
 import { useTaskStore } from '../stores/tasks'
 import { useGpuStore } from '../stores/gpu'
@@ -53,8 +53,11 @@ const isCopyVideo = computed(() => videoCodec.value === 'copy')
 
 const gpuHint = computed(() => {
   if (!gpu.gpu?.available) return ''
-  const hwOptions = VIDEO_CODECS[container.value].filter((c) => c.hw)
-  return hwOptions.length > 0 ? `本机检测到 ${gpu.gpu.vendor} 硬件编码，可选 ${hwOptions.map((c) => c.label.split(' ')[0]).join(' / ')} 提升速度` : ''
+  const available = new Set(gpu.gpu.encoders)
+  const hwOptions = VIDEO_CODECS[container.value].filter((c) => c.hw && available.has(c.value))
+  if (hwOptions.length === 0) return ''
+  const names = [...new Set(hwOptions.map((c) => c.label.replace(/\s*\(.*\)$/, '')))]
+  return `本机检测到 ${gpu.gpu.vendor} 硬件编码，可选 ${names.join(' / ')} 提升速度`
 })
 
 /** 容器变更：重置为合法编码组合 */
@@ -149,6 +152,8 @@ async function startConvert(): Promise<void> {
   } finally {
     converting.value = false
   }
+  await nextTick()
+  document.querySelector('.queue-col')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 // GPU 检测完成后，若当前仍是软件编码且硬编可用，给出一次默认切换（不覆盖用户手动选择）
@@ -157,12 +162,14 @@ watch(
   () => gpu.gpu?.available,
   (avail) => {
     if (!avail || gpuAutoApplied || activePreset.value) return
-    const opt = VIDEO_CODECS[container.value].find((c) => c.hw)
+    const available = gpu.gpu?.encoders ?? []
+    const opt = VIDEO_CODECS[container.value].find((c) => c.hw && available.includes(c.value))
     if (opt) {
       videoCodec.value = opt.value
       gpuAutoApplied = true
     }
-  }
+  },
+  { immediate: true }
 )
 </script>
 
@@ -316,7 +323,7 @@ watch(
         <span class="hint-inline">CRF 质量模式：体积取决于画面复杂度，压缩率通常更高</span>
       </div>
       <button class="btn btn-primary btn-lg" :disabled="converting || !video.info" @click="startConvert">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 4 14 8-14 8V4z" /></svg>
+        <svg class="btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 4 14 8-14 8V4z" /></svg>
         开始转换
       </button>
     </footer>
@@ -484,6 +491,7 @@ watch(
 
 .form-foot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -495,6 +503,7 @@ watch(
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 .est-label {
   font-size: 12px;
@@ -508,5 +517,12 @@ watch(
 .btn-lg {
   padding: 11px 26px;
   font-size: 14px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.btn-ic {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 </style>

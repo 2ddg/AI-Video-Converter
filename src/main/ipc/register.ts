@@ -98,8 +98,8 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   // ---------- GPU 硬件编码检测 ----------
   ipcMain.handle(IPC.GPU_DETECT, async () => {
     const cached = getGpuCache()
-    // 缓存 24h 内有效
-    if (cached && cached.detectedAt && Date.now() - cached.detectedAt < 24 * 3600 * 1000) {
+    // 仅缓存可用结果 24h；失败结果下次重试，避免一次瞬时失败锁死一天
+    if (cached?.available && cached.detectedAt && Date.now() - cached.detectedAt < 24 * 3600 * 1000) {
       return cached
     }
     const gpu = await detectGpuEncoders()
