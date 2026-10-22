@@ -65,18 +65,20 @@
 ## 运行
 
 ### 环境要求
-- Node.js ≥ 20
+- Node.js 22.12+（推荐 22 LTS）
 - Windows 10/11 x64（macOS/Linux 需另配 ffmpeg 二进制）
 
-### 开发
+### 开发（Windows PowerShell）
 
-```bash
+```powershell
 # 注意：若环境有 ELECTRON_RUN_AS_NODE=1 需先清除（否则 electron 以纯 Node 模式运行）
-unset ELECTRON_RUN_AS_NODE
+Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
 
 npm install
 npm run dev
 ```
+
+> CMD 用 `set "ELECTRON_RUN_AS_NODE="`；Git Bash 用 `unset ELECTRON_RUN_AS_NODE`。国内网络若 Electron 二进制下载失败，见 [docs/会话总结.md](docs/会话总结.md) 4.2 的镜像方案。
 
 ### 生产构建
 
@@ -95,12 +97,12 @@ ffmpeg.exe 通过 `extraResources` 打包进 `resources/ffmpeg/`，运行时走 
 
 ### e2e 测试
 
-```bash
-unset ELECTRON_RUN_AS_NODE
-./node_modules/.bin/electron e2e-test.js
+```powershell
+Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+npm run test:e2e
 ```
 
-测试用 ffmpeg 生成 15 秒 720p 样例视频，加载真实应用走完整 IPC 链路，验证 probe/缩略图/GPU 检测/转换/进度/完成全流程。
+`test:e2e` 会先构建 `out/`，首次运行自动用内置 ffmpeg 生成 15 秒 720p 样例视频（testsrc2 + sine），输出到系统临时目录，不污染仓库；随后加载真实应用走完整 IPC 链路，验证 probe/缩略图/GPU 检测/转换/进度/完成全流程。
 
 ## 目录结构
 
@@ -136,7 +138,7 @@ AI-Video-Converter/
 | 2. ffmpeg 命令行转换 | ✅ spawn ffmpeg.exe，6 种容器 + 多编码器 |
 | 3. 自行优化 | ✅ GPU 检测/批量队列/预设/历史/通知/主题/剪辑 等 16 项 |
 | 4. 生成会话总结 md | ✅ [docs/会话总结.md](docs/会话总结.md) |
-| 5. 提交 GitHub | ✅ github.com/2ddg/AI-Video-Converter |
+| 5. 提交 GitHub | ✅ [github.com/2ddg/AI-Video-Converter](https://github.com/2ddg/AI-Video-Converter) |
 | 6. 界面选型与"客户端"关联 | ✅ Electron 桌面客户端（原生窗口/任务栏/通知/拖拽） |
 | 7. 给人用 + 自测 | ✅ e2e 全链路测试通过，非空壳 |
 

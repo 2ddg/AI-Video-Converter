@@ -169,11 +169,12 @@ export function runTranscode(task: ConvertTask, cb: TranscodeCallbacks): string 
   let block: Record<string, string> = {}
   let lastEmit = 0
 
-  const emitProgress = (b: Record<string, string>): void => {
+  const emitProgress = (b: Record<string, string>, force = false): void => {
     const now = Date.now()
-    if (now - lastEmit < 100) return
+    if (!force && now - lastEmit < 100) return
     lastEmit = now
-    const outUs = parseInt(b['out_time_us'] ?? b['out_time_ms'] ?? '0', 10)
+    const rawOutUs = parseInt(b['out_time_us'] ?? b['out_time_ms'] ?? '0', 10)
+    const outUs = force && durationSec ? Math.round(durationSec * 1_000_000) : rawOutUs
     const outSec = (Number.isFinite(outUs) ? outUs : 0) / 1_000_000
     const percent = durationSec && durationSec > 0 ? Math.min(100, (outSec / durationSec) * 100) : 0
     const speed = parseFloat(String(b['speed'] ?? '0').replace('x', '')) || 0
@@ -194,8 +195,7 @@ export function runTranscode(task: ConvertTask, cb: TranscodeCallbacks): string 
     const k = line.slice(0, eq).trim()
     const v = line.slice(eq + 1).trim()
     if (k === 'progress') {
-      emitProgress(block)
-      if (v === 'end') emitProgress(block) // 最终一帧
+      emitProgress(block, v === 'end')
       block = {}
     } else {
       block[k] = v

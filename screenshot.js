@@ -1,9 +1,38 @@
 const { app, BrowserWindow } = require('electron')
+const { spawnSync } = require('child_process')
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
-const VIDEO = 'D:/temp/test_720p.mp4'
+const TMP_ROOT = path.join(os.tmpdir(), 'video-converter-e2e')
+const VIDEO = path.join(TMP_ROOT, 'test_720p.mp4')
 const SHOT_DIR = path.join(__dirname, 'docs', 'screenshots')
+
+if (!fs.existsSync(path.join(__dirname, 'out', 'main', 'index.js'))) {
+  console.error('SHOT_FAIL: out/main/index.js missing. Run npm run build first.')
+  process.exit(1)
+}
+
+fs.mkdirSync(TMP_ROOT, { recursive: true })
+
+if (!fs.existsSync(VIDEO)) {
+  const ffmpeg = path.join(__dirname, 'resources', 'ffmpeg', 'ffmpeg.exe')
+  if (!fs.existsSync(ffmpeg)) {
+    console.error('SHOT_FAIL: bundled ffmpeg not found: ' + ffmpeg)
+    process.exit(1)
+  }
+  const generated = spawnSync(ffmpeg, [
+    '-hide_banner', '-y',
+    '-f', 'lavfi', '-i', 'testsrc2=size=1280x720:rate=30:duration=15',
+    '-f', 'lavfi', '-i', 'sine=frequency=440:duration=15',
+    '-c:v', 'libx264', '-preset', 'ultrafast', '-pix_fmt', 'yuv420p',
+    '-c:a', 'aac', '-shortest', VIDEO
+  ], { stdio: 'ignore' })
+  if (generated.status !== 0) {
+    console.error('SHOT_FAIL: sample generation failed (exit ' + generated.status + ')')
+    process.exit(1)
+  }
+}
 const LOG = path.join(SHOT_DIR, 'shot.log')
 fs.mkdirSync(SHOT_DIR, { recursive: true })
 fs.writeFileSync(LOG, '')

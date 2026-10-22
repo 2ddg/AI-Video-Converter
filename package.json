@@ -5,11 +5,15 @@
   "main": "out/main/index.js",
   "author": "PangJianfeng",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "typecheck": "vue-tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json",
+    "test:e2e": "electron-vite build && electron e2e-test.js",
     "start": "electron-vite preview",
     "dist:dir": "electron-vite build && electron-builder --dir",
     "dist:win": "electron-vite build && electron-builder --win nsis",
