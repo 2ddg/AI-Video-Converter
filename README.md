@@ -9,6 +9,10 @@
 
 评审标准明确：**"界面选型与'客户端'关联为 0 不予考虑"**。本项目从选型即定为 **Electron 桌面客户端**——原生窗口、任务栏图标、系统通知、本地文件拖拽、磁盘读写，一打开即"客户端感"拉满。技术选型与决策详见 [docs/会话总结.md](docs/会话总结.md)。
 
+## 快速体验（免安装）
+
+不想 clone 编译？直接下载 Windows 免安装包：[video-converter-1.0.0-x64.zip](https://github.com/2ddg/AI-Video-Converter/releases/download/v1.0.0/video-converter-1.0.0-x64.zip)（179MB，FFmpeg 已内置），解压后双击 `视频格式转换器.exe` 即可运行。
+
 ## 界面预览
 
 ![应用主界面](docs/screenshots/01-loaded.png)
